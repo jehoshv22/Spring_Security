@@ -21,5 +21,29 @@ jobs:
           java-version: "17"
 
       - name: Build with Maven
-        # explicitly reference the pom.xml in the repository root
         run: mvn -f pom.xml clean package --batch-mode
+
+      - name: Identify the built JAR file
+        id: jar
+        run: |
+          JAR_FILE=$(ls target/*.jar | head -n 1)
+          echo "jar_file=$JAR_FILE" >> $GITHUB_OUTPUT
+
+      - name: Verify JAR file
+        run: |
+          ls -l ${{ steps.jar.outputs.jar_file }}
+          file ${{ steps.jar.outputs.jar_file }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t my-spring-security-app -f Dockerfile .
+          docker tag my-spring-security-app jvlearning/my-spring-security-app:latest
+
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login \
+            --username "${{ secrets.DOCKER_USERNAME }}" \
+            --password-stdin
+
+      - name: Push Docker image to Docker Hub
+        run: docker push jvlearning/my-spring-security-app:latest
