@@ -36,7 +36,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t my-spring-security-app -f Dockerfile .
+          docker build -t my-spring-security-app -f DockerFile .
           docker tag my-spring-security-app jvlearning/my-spring-security-app:latest
 
       - name: Login to Docker Hub
